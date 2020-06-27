@@ -14,7 +14,7 @@ import re,sys,os,datetime
 #
 #
 def cls_prt(strs):
-    sys.stdout.write(strs + ' '+'\r')
+    sys.stdout.write(strs + ' '*5+'\r')
     sys.stdout.flush()
 def openp(it,pn=1):
     req = Request('https://tieba.baidu.com/p/'+it+'?pn='+str(pn)+'&ie=utf-8')
@@ -61,7 +61,7 @@ if '-od' not in sys.argv:
         rq = Request(url)
         htm = urlopen(rq)
         item.extend(cont.findall(htm.read().decode('utf-8')))
-        cls_prt('[+] page:'+str(i)+'|pageurl:'+url)
+        cls_prt('[+] page:'+str(i)+'|'+str(round(i/pn,4)*100)+'%')
         htm.close()
     if '-os' in sys.argv:
         f=open(sys.argv[3],'a')

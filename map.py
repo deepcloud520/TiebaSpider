@@ -1,11 +1,13 @@
 import os,sys,re
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup as BS
+from bs4 import element
 
 #
 # map.py -->deepcloud[swwm] coding.
 # usage:
 #  python3 map.py [tiebaname]
+#
 
 def cls_prt(strs):
     sys.stdout.write(strs + ' '*10+'\r')
@@ -17,8 +19,6 @@ if not os.path.exists(now):os.mkdir(now)
 nowd=os.getcwd()+'/download/'+target+'/'
 now+='/'
 #title=re.compile(r'(?=<h3 class="core_title_txt pull-left text-overflow  " title=").*(?=")')
-imgsrc=re.compile(r'(?=<img class="BDE_Image" src=").*jpg')
-detag=re.compile(r'<.*>')
 def build_xml(file,dit):
     temp='''
     <data><head><p></p><title></title><date></date></head><body></body></data>
@@ -44,9 +44,9 @@ def build_xml(file,dit):
         anp[0][0].text=v['floorinfo'].get('name','')
         anp[0][1].text=v['floorinfo'].get('level','')
         anp[0][2].text=v['floorinfo'].get('date','')
-        for key,value in v['text'].items():
-            value=value.replace('，',',').replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;').replace('<','&lt;').replace('>','&gt;')
-            rep='<%s>%s</%s>' %(key,value,key)
+        for kvv in v['text']:
+            kvv[1]=kvv[1].replace('，',',').replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;').replace('<','&lt;').replace('>','&gt;')
+            rep='<%s>%s</%s>' %(kvv[0],kvv[1],kvv[0])
             try:
                 anp[1].append(ET.XML(rep))
             except:
@@ -62,7 +62,6 @@ def build_xml(file,dit):
     f.close()
 def parsefile(p,pn=1):
     dct={'head':{'p':p,'title':'','date':''},'body':{}}
-    i=1
     for i in range(pn):
         f=open(nowd+p+'_'+str(i)+'.html')
         ret=f.read()
@@ -81,24 +80,26 @@ def parsefile(p,pn=1):
                 elif yu.string is None:
                     continue
                 date=str(yu.string)
-            tempt={floornum:{'floorinfo':{'name':'','level':'','date':''},'text':{}}}
+            tempt={floornum:{'floorinfo':{'name':'','level':'','date':''},'text':[]}}
             tempt[floornum]['floorinfo']['date']=date
             nzp=tz.find('a',class_='p_author_name j_user_card')
             if nzp:
                 tempt[floornum]['floorinfo']['name']=str(nzp.string)
             QAQ=tz.find('div',class_='d_post_content j_d_post_content')
             for ko in QAQ.contents:
-                nastr=str(ko)
-                nastr=nastr.replace('<br />','\n').replace('<br>','\n')
-                # find img
-                rty=imgsrc.findall(nastr)
-                if rty:
-                    for src in rty:
-                        tempt[floornum]['text'].update({'img':scr})
-                # empty tag
-                nastr=detag.sub('',nastr)
-            tempt[floornum]['text'].update({'p':nastr})
+                if isinstance(ko,element.NavigableString):
+                    nastr=str(ko)
+                    nastr=nastr.replace('<br />','\n').replace('<br>','\n')
+                    tempt[floornum]['text'].append(['p',nastr])
+                else:
+                    # find img
+                    rty=ko.attrs.get('src',None)
+                    if rty:
+                        tempt[floornum]['text'].append(['img',str(rty)])
             dct['body'].update(tempt)
+    n=1
+    while str(n) not in dct['body']:n+=1
+    dct['head']['date']=dct['body'][str(n)]['floorinfo']['date']
     build_xml(p+'.xml',dct)
 print('[+] map.py Running.Press Ctrl+C to quit.')
 p_any=[]
