@@ -17,6 +17,7 @@ target=sys.argv[1]
 now=os.getcwd()+'/map/'+target
 if not os.path.exists(now):os.mkdir(now)
 nowd=os.getcwd()+'/download/'+target+'/'
+NRW=True if '-nrw' in sys.argv else False
 now+='/'
 #title=re.compile(r'(?=<h3 class="core_title_txt pull-left text-overflow  " title=").*(?=")')
 def build_xml(file,dit):
@@ -55,7 +56,10 @@ def build_xml(file,dit):
         #print(ET.tostring(xl),encoding='unicode')
     mt=ET.tostring(xl)
     if os.path.exists(now+file):
-        f=open(now+file,'w')
+        if not NRW:
+            f=open(now+file,'w')
+        else:
+            return
     else:
         f=open(now+file,'a')
     f.write(mt.decode('utf-8'))
@@ -86,34 +90,37 @@ def parsefile(p,pn=1):
             if nzp:
                 tempt[floornum]['floorinfo']['name']=str(nzp.string)
             QAQ=tz.find('div',class_='d_post_content j_d_post_content')
-            for ko in QAQ.contents:
-                if isinstance(ko,element.NavigableString):
-                    nastr=str(ko)
-                    nastr=nastr.replace('<br />','\n').replace('<br>','\n')
-                    tempt[floornum]['text'].append(['p',nastr])
-                else:
-                    # find img
-                    rty=ko.attrs.get('src',None)
-                    if rty:
-                        tempt[floornum]['text'].append(['img',str(rty)])
+            if QAQ:
+                for ko in QAQ.contents:
+                    if isinstance(ko,element.NavigableString):
+                        nastr=str(ko)
+                        nastr=nastr.replace('<br />','\n').replace('<br>','\n')
+                        tempt[floornum]['text'].append(['p',nastr])
+                    else:
+                        # find img
+                        rty=ko.attrs.get('src',None)
+                        if rty:
+                            tempt[floornum]['text'].append(['img',str(rty)])
             dct['body'].update(tempt)
-    n=1
-    while str(n) not in dct['body']:n+=1
-    dct['head']['date']=dct['body'][str(n)]['floorinfo']['date']
-    build_xml(p+'.xml',dct)
+    if dct['head']['title']:
+        n=1
+        while str(n) not in dct['body']:n+=1
+        dct['head']['date']=dct['body'][str(n)]['floorinfo']['date']
+        build_xml(p+'.xml',dct)
 print('[+] map.py Running.Press Ctrl+C to quit.')
 p_any=[]
 lsxt=os.listdir(nowd)
+whandle=os.listdir(now)
 for ffile in lsxt:
     if os.path.isfile(nowd+ffile):
         nzz=ffile.split('.')[0]
         nzz=nzz.split('_')
-        if nzz[0] not in p_any:
+        if nzz[0] not in p_any and ((not NRW) and nzz[0] not in whandle):
             p_any.append(nzz[0])
             nzz[1]=int(nzz[1])
+            cls_prt('[+] handle p:'+nzz[0])
             while (nzz[0]+'_'+str(nzz[1])+'.html') in lsxt:
                 nzz[1]+=1
-            cls_prt('[+] handle p:'+nzz[0])
             parsefile(nzz[0],nzz[1])
 print('[+]','All file parse done.')        
         
