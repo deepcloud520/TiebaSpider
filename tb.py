@@ -34,6 +34,9 @@ def openp(it,pn=1):
     html.close()
     return htm
 
+now=os.getcwd()+'/download'
+if not os.path.exists(now):os.mkdir(now)
+
 target=sys.argv[1]
 pn=0
 now=os.getcwd()+'/download/'+target
