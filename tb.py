@@ -109,14 +109,14 @@ if '-os' not in sys.argv:
                 html=openp(it,int(n))
                 if NRW:
                     if not os.path.exists(file+'_'+str(n)+'.html'):
-                        f=open(file+'_'+str(n)+'.html',mode='a')
+                        f=open(file+'_'+str(n)+'.html',mode='a',encoding='utf-8')
                         f.write(html)
                         f.close()
                 else:
                     try:
-                        f=open(file+'_'+str(n)+'.html',mode='w')
+                        f=open(file+'_'+str(n)+'.html',mode='w',encoding='utf-8')
                     except:
-                        f=open(file+'_'+str(n)+'.html',mode='a')
+                        f=open(file+'_'+str(n)+'.html',mode='a',encoding='utf-8')
                     f.write(html)
                     f.close()
         except KeyboardInterrupt:
