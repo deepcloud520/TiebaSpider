@@ -34,9 +34,6 @@ def openp(it,pn=1):
     html.close()
     return htm
 
-now=os.getcwd()+'/download'
-if not os.path.exists(now):os.mkdir(now)
-
 target=sys.argv[1]
 pn=0
 now=os.getcwd()+'/download/'+target
@@ -65,13 +62,13 @@ if not found:
     sys.exit(1)
 pn=int(found[0])//50+1
 item=[]
-if len(sys.argv)<=2:
-    start,end=0,pn
-else:
+start,end=0,pn
+if len(sys.argv)>2:
     hjk=sys.argv[2].split('-')
-    if len(hjk)>1:
+    if len(hjk)>1 and hjk[0]:
         start=int(hjk[0])
         end=int(hjk[1])
+
 print('[+] Scan page:',pn)
 if '-od' not in sys.argv:
     for i in range(start,end):
@@ -105,6 +102,10 @@ if '-os' not in sys.argv:
             if pages>MAXPN:
                 continue
             for n in range(pages):
+                cls_prt('[+] NowDownload:'+it+'-'+str(n))
+                if NRW:
+                    if os.path.exists(file+'_'+str(n)+'.html'):
+                        continue
                 html=openp(it,int(n))
                 if NRW:
                     if not os.path.exists(file+'_'+str(n)+'.html'):
@@ -113,12 +114,11 @@ if '-os' not in sys.argv:
                         f.close()
                 else:
                     try:
-                        f=open(file+'_'+str(n)+'.html',mode='w',encoding='utf-8')
+                        f=open(file+'_'+str(n)+'.html',mode='w')
                     except:
-                        f=open(file+'_'+str(n)+'.html',mode='a',encoding='utf-8')
+                        f=open(file+'_'+str(n)+'.html',mode='a')
                     f.write(html)
                     f.close()
-                cls_prt('[+] NowDownload:'+it+'-'+str(n))
         except KeyboardInterrupt:
             print('[-]','Stop             ')
             sys.exit(0)

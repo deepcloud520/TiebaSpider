@@ -42,11 +42,12 @@ def build_xml(file,dit):
 </floor>
         ''')
         anp.set('num',str(k))
-        anp[0][0].text=v['floorinfo'].get('name','')
+        for cont in v['floorinfo']['name']:
+            anp[0][0].append(ET.XML('<%s>%s</%s>' %(cont[0],cont[1],cont[0])))
         anp[0][1].text=v['floorinfo'].get('level','')
         anp[0][2].text=v['floorinfo'].get('date','')
         for kvv in v['text']:
-            kvv[1]=kvv[1].replace('，',',').replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;').replace('<','&lt;').replace('>','&gt;')
+            #kvv[1]=kvv[1].replace('，',',').replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;').replace('<','&lt;').replace('>','&gt;')
             rep='<%s>%s</%s>' %(kvv[0],kvv[1],kvv[0])
             try:
                 anp[1].append(ET.XML(rep))
@@ -62,7 +63,7 @@ def build_xml(file,dit):
             return
     else:
         f=open(now+file,'a')
-    f.write(mt.decode('utf-8'))
+    f.write(mt.decode('utf-8',errors='ignore'))
     f.close()
 def parsefile(p,pn=1):
     dct={'head':{'p':p,'title':'','date':''},'body':{}}
@@ -84,11 +85,23 @@ def parsefile(p,pn=1):
                 elif yu.string is None:
                     continue
                 date=str(yu.string)
-            tempt={floornum:{'floorinfo':{'name':'','level':'','date':''},'text':[]}}
+            tempt={floornum:{'floorinfo':{'name':[],'level':'','date':'','userid':''},'text':[]}}
             tempt[floornum]['floorinfo']['date']=date
             nzp=tz.find('a',class_='p_author_name j_user_card')
-            if nzp:
-                tempt[floornum]['floorinfo']['name']=str(nzp.string)
+            if not nzp:
+                nzp=tz.find('a',class_='p_author_name sign_highlight j_user_card')
+            
+            # if nzp:
+            #     tempt[floornum]['floorinfo']['name']=str(nzp.string)
+            if nzp and nzp.contents:
+                for content in nzp.contents:
+                    if isinstance(content,element.NavigableString):
+                        nastr=str(content)
+                        tempt[floornum]['floorinfo']['name'].append(['str',nastr])
+                    else:
+                        rty=content.attrs.get('src',None)
+                        if rty:
+                            tempt[floornum]['floorinfo']['name'].append(['img','https:'+str(rty)])
             QAQ=tz.find('div',class_='d_post_content j_d_post_content')
             if QAQ:
                 for ko in QAQ.contents:
@@ -111,6 +124,7 @@ print('[+] map.py Running.Press Ctrl+C to quit.')
 p_any=[]
 lsxt=os.listdir(nowd)
 whandle=os.listdir(now)
+alls=0
 for ffile in lsxt:
     if os.path.isfile(nowd+ffile):
         nzz=ffile.split('.')[0]
@@ -118,10 +132,13 @@ for ffile in lsxt:
         if nzz[0] not in p_any and ((not NRW) and nzz[0] not in whandle):
             p_any.append(nzz[0])
             nzz[1]=int(nzz[1])
-            cls_prt('[+] handle p:'+nzz[0])
+            cls_prt('[+] handle p:'+nzz[0]+' (completes:'+str(alls)+')')
             while (nzz[0]+'_'+str(nzz[1])+'.html') in lsxt:
+                if nzz[1]>=1000:
+                    break
                 nzz[1]+=1
             parsefile(nzz[0],nzz[1])
+            alls+=1
 print('[+]','All file parse done.')        
         
-    
+     
