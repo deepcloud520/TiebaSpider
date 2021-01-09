@@ -58,17 +58,17 @@ def build_xml(file,dit):
     mt=ET.tostring(xl)
     if os.path.exists(now+file):
         if not NRW:
-            f=open(now+file,'w')
+            f=open(now+file,'w'，,encoding='utf-8')
         else:
             return
     else:
-        f=open(now+file,'a')
+        f=open(now+file,'a'，,encoding='utf-8')
     f.write(mt.decode('utf-8',errors='ignore'))
     f.close()
 def parsefile(p,pn=1):
     dct={'head':{'p':p,'title':'','date':''},'body':{}}
     for i in range(pn):
-        f=open(nowd+p+'_'+str(i)+'.html')
+        f=open(nowd+p+'_'+str(i)+'.html',encoding='utf-8')
         ret=f.read()
         f.close()
         soup=BS(ret,'lxml')
