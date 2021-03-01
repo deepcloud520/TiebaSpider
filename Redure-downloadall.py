@@ -7,7 +7,8 @@ def cls_prt(strs):
 try:
     target=sys.argv[1]
 except IndexError:
-    print('用法:python Redure-dowloading.py [已处理好的贴吧名]')
+    print('用法:python Redure-dowloadall.py [已处理好的贴吧名]')
+    sys.exit()
 now=os.getcwd()+'/map/'+target+'/'
 now2=os.getcwd()+'/img/'+target+'/'
 if not os.path.exists(now2):os.mkdir(now2)
@@ -17,10 +18,10 @@ for ffile in lsxt:
     try:
         tree = ET.parse(now+ffile)
         root = tree.getroot()
-        floor=root[1][0][1]
-        for c in floor:
-            if c.tag=='img' and 'https://imgsa.baidu.com/' in c.text:
-                count.append(c.text)
+        for floor in root[1]:
+            for c in floor:
+                if c.tag=='img' and 'https://imgsa.baidu.com/' in c.text:
+                    count.append(c.text)
     except:
         pass
 i=0

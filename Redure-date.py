@@ -1,7 +1,10 @@
 import os,sys,re
 import xml.etree.ElementTree as ET
-
-target=sys.argv[1]
+try:
+    target=sys.argv[1]
+except:
+    print('用法：python Redure-date.py [已处理好的贴吧名]')
+    sys.exit()
 now=os.getcwd()+'/map/'+target+'/'
 lsxt=os.listdir(now)
 count={'year':{}}

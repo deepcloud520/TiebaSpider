@@ -12,8 +12,11 @@ from bs4 import element
 def cls_prt(strs):
     sys.stdout.write(strs + ' '*10+'\r')
     sys.stdout.flush()
-
-target=sys.argv[1]
+try:
+    target=sys.argv[1]
+except:
+    print('用法：python map.py [贴吧名] [-nre(非必要选项，可不填)]\n\t-nrw:不重复操作。')
+    sys.exit()
 now=os.getcwd()+'/map/'+target
 if not os.path.exists(now):os.mkdir(now)
 nowd=os.getcwd()+'/download/'+target+'/'
@@ -58,11 +61,11 @@ def build_xml(file,dit):
     mt=ET.tostring(xl)
     if os.path.exists(now+file):
         if not NRW:
-            f=open(now+file,'w'，,encoding='utf-8')
+            f=open(now+file,'w')
         else:
             return
     else:
-        f=open(now+file,'a'，,encoding='utf-8')
+        f=open(now+file,'a')
     f.write(mt.decode('utf-8',errors='ignore'))
     f.close()
 def parsefile(p,pn=1):
@@ -120,7 +123,7 @@ def parsefile(p,pn=1):
         while str(n) not in dct['body']:n+=1
         dct['head']['date']=dct['body'][str(n)]['floorinfo']['date']
         build_xml(p+'.xml',dct)
-print('[+] map.py Running.Press Ctrl+C to quit.')
+print('[+] map.py 正在运行.按Ctrl + C 键退出.')
 p_any=[]
 lsxt=os.listdir(nowd)
 whandle=os.listdir(now)
@@ -132,13 +135,11 @@ for ffile in lsxt:
         if nzz[0] not in p_any and ((not NRW) and nzz[0] not in whandle):
             p_any.append(nzz[0])
             nzz[1]=int(nzz[1])
-            cls_prt('[+] handle p:'+nzz[0]+' (completes:'+str(alls)+')')
+            cls_prt('[+] 正在操作主题帖:'+nzz[0]+' (已完成:'+str(alls)+')')
             while (nzz[0]+'_'+str(nzz[1])+'.html') in lsxt:
                 if nzz[1]>=1000:
                     break
                 nzz[1]+=1
             parsefile(nzz[0],nzz[1])
             alls+=1
-print('[+]','All file parse done.')        
-        
-     
+print('[+]','全部汇总已完成.')
